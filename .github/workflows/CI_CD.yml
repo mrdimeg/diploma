@@ -1,0 +1,116 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI/CD
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "master" branch
+  push:
+    branches: [ "master", "dev", "DevOps", "Pipeline-Test" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  
+  Syntax_check:
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout from current branch
+          uses: actions/checkout@v3
+
+        - name: Lint Code Base
+          uses: github/super-linter@v4
+          env:
+            VALIDATE_ALL_CODEBASE: false
+            DEFAULT_BRANCH: "master"
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+  Backend_build:
+    runs-on: ubuntu-latest
+    needs: [Syntax_check]
+
+    steps:
+      
+      - name: Checkout from current branch
+        uses: actions/checkout@v3
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+      - run: mvn --batch-mode --update-snapshots verify
+      - run: mkdir staging && cp target/*.jar staging
+      - uses: actions/upload-artifact@v3
+        with:
+          name: Highschool.Backend
+          path: staging
+          retention-days: 1
+
+
+  Frontend_build:
+    needs: [Syntax_check]
+    runs-on: ubuntu-latest
+    steps:
+        - name: Checkout from current branch
+          uses: actions/checkout@v3
+          
+        - name: Build Front
+          run: cd front && npm install && npm run build
+          
+        - name: Uploading artifacts
+          uses: actions/upload-artifact@v3
+          with:
+            name: Highschool-Front
+            path: front/build
+            retention-days: 1        
+
+    
+
+  Deploy_backend:
+    runs-on: [self-hosted,DEV]
+    needs: [Backend_build]
+    steps:
+        - name: Downloading backend
+          uses: actions/download-artifact@v3
+          with:
+            name: Highschool.Backend
+            path: /home/ubuntu/
+  
+
+  Deploy_frontend:
+    runs-on: [self-hosted,DEV]
+    needs: [Frontend_build]
+    steps:
+        - name: Downloading backend
+          uses: actions/download-artifact@v3
+          with:
+            name: Highschool-Front
+            path: /home/ubuntu/Highschool-Front
+  
+  Stopping_Backend: 
+    runs-on: [self-hosted,DEV]
+    needs: [Deploy_backend]
+    steps:
+        - name: Stopping backend
+          run: sudo systemctl stop highschool.service
+  
+  Starting_New_Backend: 
+    runs-on: [self-hosted,DEV]
+    needs: [Stopping_Backend]
+    steps:
+        - name: Starting new backend
+          run: sudo systemctl start highschool.service
+
+  Restarting_Nginx: 
+    runs-on: [self-hosted,DEV]
+
+    needs: [Starting_New_Backend, Deploy_frontend]
+
+    steps:
+        - name: Restarting nginx
+          run: |
+            sudo cp -r /home/ubuntu/Highschool-Front /var/www/
+            sudo systemctl restart nginx
+  
