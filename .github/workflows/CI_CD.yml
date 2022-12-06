@@ -37,6 +37,13 @@ jobs:
         - name: Checkout from current branch
           uses: actions/checkout@v3
           
+        - name: Login to GHCR
+          uses: docker/login-action@v2
+          with:
+            registry: ghcr.io
+            username: ${{ github.repository_owner }}
+            password: ${{ secret.GHCR_PASSWORD }} 
+          
         - name: Build Front
           run: cd front && npm install && npm run build
         
@@ -55,13 +62,6 @@ jobs:
             tags: ${{ steps.docker_meta.outputs.tags }}
             file: ./Dockerfile
 
-
-        - name: Login to GHCR
-          uses: docker/login-action@v2
-          with:
-            registry: ghcr.io
-            username: ${{ github.repository_owner }}
-            password: ${{ github.token.GHCR }} 
         
         - name: Set up QEMU
           uses: docker/setup-qemu-action@v2
