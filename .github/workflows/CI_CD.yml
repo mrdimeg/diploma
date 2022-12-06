@@ -32,15 +32,18 @@ jobs:
   Frontend_build:
     #needs: [Syntax_check]
     runs-on: ubuntu-latest
+ 
     steps:
         - name: Checkout from current branch
           uses: actions/checkout@v3
           
         - name: Build Front
           run: cd front && npm install && npm run build
+        
 
         - name: Build and push Docker image
           uses: docker/build-push-action@v2
+          
           with:
             context: .
             file: ./Dockerfile
@@ -54,10 +57,16 @@ jobs:
             username: ${{ github.repository_owner }}
             password: ${{ secrets.GHCR }} 
         
+        - name: Set up QEMU
+          uses: docker/setup-qemu-action@v2
+      
+        - name: Set up Docker Buildx
+          uses: docker/setup-buildx-action@v2
+          
         - name: Push to GHCR
-          uses: docker/build-push-action@v2
+          uses: docker/build-push-action@v3
           with:
             context: .
             file: ./Dockerfile
             push: true
-            tags: ghcr.io/${{ github.repository_owner }}/highschool:${{ github.sha }}
+            tags: ghcr.io/${{ github.repository_owner }}/highschool:latest
