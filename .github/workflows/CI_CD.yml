@@ -36,12 +36,13 @@ jobs:
     steps:
         - name: Checkout from current branch
           uses: actions/checkout@v3
+
         - name: Login to ghcr.io
           uses: docker/login-action@v2
           with:
             registry: ghcr.io
             username: ${{ github.repository_owner }}
-            password: ${{ secrets.CR_PAT }}
+            password: ${{ CR_PAT }}
 
         - name: Build Docker container
           run: export ${{env.CR_PAT}} && ./devops/build.sh
