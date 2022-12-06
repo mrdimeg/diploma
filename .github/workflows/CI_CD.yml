@@ -69,4 +69,4 @@ jobs:
             context: .
             file: ./Dockerfile
             push: true
-            tags: ghcr.io/mrdimeg/highschool:latest
+            tags: mrdimeg/highschool:latest
