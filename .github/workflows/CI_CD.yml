@@ -69,4 +69,4 @@ jobs:
             context: .
             file: ./Dockerfile
             push: true
-            tags: ghcr.io/${{ github.repository_owner }}/highschool:latest
+            tags: ghcr.io/mrdimeg/highschool:latest
