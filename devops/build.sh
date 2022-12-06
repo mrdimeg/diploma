@@ -2,6 +2,6 @@
 set -e -x
 
 # Build the image
-echo $CR_PAT | docker login ghcr.io -u mrdimeg --password-stdin
+docker login ghcr.io -u mrdimeg -p $CR_PAT
 docker build -t ghcr.io/mrdimeg/diploma:latest -f devops/Dockerfile .
 docker push ghcr.io/mrdimeg/diploma:latest
