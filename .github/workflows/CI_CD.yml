@@ -44,12 +44,10 @@ jobs:
             username: ${{ secrets.GHCR_USER }}
             password: ${{ secrets.GHCR_PASSWORD }}
 
-        - name: Build Docker container
-          run: export ${{env.CR_PAT}} && ./devops/build.sh
-
-
         - name: Build Front
           run: cd front && npm install && npm run build
         
+        - name: Build Docker container
+          run: ./devops/build.sh
 
         
