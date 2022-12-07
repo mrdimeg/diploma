@@ -3,4 +3,3 @@ This is a sample project to demonstrate how to setup a CI/CD pipeline for a simp
 
 [![GitHub Super-Linter](https://github.com/AliaksandrMikhalchuk/hackathon-team-one/workflows/CI/badge.svg)](https://github.com/marketplace/actions/super-linter)
 
-[![GitHub Super-Linter](https://github.com/AliaksandrMikhalchuk/hackathon-team-one/workflows/CI/badge.svg)](https://github.com/marketplace/actions/super-linter)
